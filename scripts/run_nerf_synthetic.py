@@ -6,12 +6,10 @@ import time
 import itertools
 
 scenes = ["ship", "drums", "ficus", "hotdog", "lego", "materials", "mic", "chair"]
-
 factors = [1]
 
-output_dir = "exp_nerf_synthetic/release"
-
-dataset_dir = "nerf_synthetic"
+dataset_dir = "/cluster/work/cvl/jiezcao/jiameng/3D-Gaussian/nerf_synthetic"
+output_dir = "output/nerf_synthetic"
 
 dry_run = False
 
@@ -19,14 +17,16 @@ excluded_gpus = set([])
 
 
 jobs = list(itertools.product(scenes, factors))
+# python train.py -s /cluster/work/cvl/jiezcao/jiameng/3D-Gaussian/nerf_synthetic/ship -m output/nerf_synthetic/ship -r 1 --eval --white_background --port 6209
 
 def train_scene(gpu, scene, factor):
-    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python train.py -s {dataset_dir}/{scene} -m {output_dir}/{scene} --eval --white_background --port {6209+int(gpu)}"
+    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python train.py -s {dataset_dir}/{scene} -m {output_dir}/{scene} -r {factor} --eval --white_background --port {6209+int(gpu)}"
+
     print(cmd)
     if not dry_run:
         os.system(cmd)
 
-    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python render.py -m {output_dir}/{scene} --skip_train"
+    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python render.py -m {output_dir}/{scene} -r {factor} --skip_train"
     print(cmd)
     if not dry_run:
         os.system(cmd)

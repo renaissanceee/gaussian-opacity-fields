@@ -10,20 +10,20 @@ scenes = ["bicycle", "bonsai", "counter", "flowers", "garden", "stump", "treehil
 factors = [4, 2, 2, 4, 4, 4, 4, 2, 2]
 
 excluded_gpus = set([])
-
-output_dir = "exp_360/release"
+dataset_dir = "/cluster/work/cvl/jiezcao/jiameng/3D-Gaussian/nerf_synthetic"
+output_dir = "output/360v2"
 
 dry_run = False
 
 jobs = list(zip(scenes, factors))
 
 def train_scene(gpu, scene, factor):
-    cmd = f"CUDA_LAUNCH_BLOCKING=1 OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python train.py -s 360_v2/{scene} -m {output_dir}/{scene} --eval -i images_{factor} --port {6109+int(gpu)}"
+    cmd = f"CUDA_LAUNCH_BLOCKING=1 OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python train.py -s {dataset_dir}/{scene} -m {output_dir}/{scene} --eval -r {factor} --port {6109+int(gpu)}"
     print(cmd)
     if not dry_run:
        os.system(cmd)
 
-    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python render.py -m {output_dir}/{scene} --data_device cpu --skip_train"
+    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python render.py -m {output_dir}/{scene} -r {factor} --data_device cpu --skip_train"
     print(cmd)
     if not dry_run:
         os.system(cmd)
@@ -33,10 +33,10 @@ def train_scene(gpu, scene, factor):
     if not dry_run:
         os.system(cmd)
     
-    cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python extract_mesh.py -m {output_dir}/{scene} --iteration 30000"
-    print(cmd)
-    if not dry_run:
-        os.system(cmd)
+    # cmd = f"OMP_NUM_THREADS=4 CUDA_VISIBLE_DEVICES={gpu} python extract_mesh.py -m {output_dir}/{scene} --iteration 30000"
+    # print(cmd)
+    # if not dry_run:
+    #     os.system(cmd)
     
     return True
 

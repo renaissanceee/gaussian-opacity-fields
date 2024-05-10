@@ -167,10 +167,10 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         
         # depth normal consistency
         depth = rendering[6, :, :]
-        depth_normal, _ = depth_to_normal(viewpoint_cam, depth[None, ...])
+        depth_normal, _ = depth_to_normal(viewpoint_cam, depth[None, ...])# depth->points->cross(dx,dy)->normal
         depth_normal = depth_normal.permute(2, 0, 1)
 
-        render_normal = rendering[3:6, :, :]
+        render_normal = rendering[3:6, :, :]# inter-plane normal
         render_normal = torch.nn.functional.normalize(render_normal, p=2, dim=0)
         
         c2w = (viewpoint_cam.world_view_transform.T).inverse()
